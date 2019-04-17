@@ -1,0 +1,102 @@
+<!<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Chat Application</title>
+
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+
+    <!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+
+    <!-- Latest compiled JavaScript -->
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    <style type="text/css">
+        .message-bubble {
+            padding: 10px 0px 10px 0px;
+        }
+        
+        .message-bubble:nth-child(even) {
+            background-color: #F5F5F5;
+        }
+        
+        .message-bubble>* {
+            padding-left: 10px;
+        }
+        
+        .panel-body {
+            padding: 0px;
+        }
+        
+        .panel-heading {
+            background-color: #3d6da7 !important;
+            color: white !important;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="panel panel-default">
+                <div class="panel-heading">Chat room</div>
+                <div class="panel-body">
+                    <div class="container" id="conversation">
+
+                    </div>
+                    <div class="panel-footer">
+                        <div class="input-group">
+                            <input type="text" class="form-control" name="message" id="message">
+                            <span class="input-group-btn">
+                        <button class="btn btn-default" type="button" id="btn_send">Send</button>
+                      </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.4/socket.io.js "></script>
+    <script type="text/javascript ">
+        var socket = io.connect("http://localhost:3000");
+        socket.on("connect", function() {
+            console.log("user is connecting on server!!! ");
+
+            // ask name
+            var username = prompt("What is your name ?? ");
+            // server
+            socket.emit("adduser", username);
+        });
+
+        //listen update_message
+        socket.on("update_message", function(data) {
+            // $("#conversation").append("<li> <b>" + data.sender + ": </b>" + data.message + "</li>");
+            $("#conversation").append("<div class='row message-bubble'> <p class='text-muted'> " + data.sender + "</p> <span>" + data.message + "</span> </div>");
+
+        });
+        //send message 
+        $("#btn_send").click(function(e) {
+            //get message  
+            var message = $("#message").val();
+            $("#message").val("");
+
+            if (message.trim().length != 0) {
+                socket.emit("send_message", message);
+            }
+        });
+
+        // $("form").submit(function() {
+        //     return false;
+        // })
+
+        //click enter
+        $("#message").keypress(function(e) {
+            //enter
+            if (e.which == 30) {
+                $("#btn_send").trigger("click");
+            }
+        });
+    </script>
+</body>
+
+</html>
